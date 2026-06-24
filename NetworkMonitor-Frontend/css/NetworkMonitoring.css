@@ -1,0 +1,193 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0b1220;
+    color:#e5e7eb;
+    font-family:'JetBrains Mono', monospace;
+    min-height:100vh;
+    padding:20px;
+}
+
+/* Main Window */
+
+.terminal-wrapper{
+    width:100%;
+}
+
+.terminal-window{
+    width:100%;
+    min-height:100vh;
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+/* Body */
+
+.terminal-body{
+    width:100%;
+    padding:35px 50px;
+}
+
+/* Header */
+
+.terminal-title{
+    text-align:center;
+    color:#22c55e;
+    font-size:2rem;
+    font-weight:700;
+    letter-spacing:2px;
+    margin:20px 0;
+}
+
+.refreshed-line{
+    text-align:right;
+    color:#94a3b8;
+    margin-bottom:30px;
+    font-size:14px;
+}
+
+/* Rules */
+
+.rule-thick{
+    border:none;
+    border-top:2px solid #334155;
+    margin:10px 0;
+}
+
+.rule-thin{
+    border:none;
+    border-top:1px solid #334155;
+    margin:25px 0;
+}
+
+/* Sections */
+
+.info-section{
+    padding:15px 0;
+}
+
+.section-title{
+    color:#22c55e;
+    font-size:18px;
+    margin-bottom:20px;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.diamond{
+    margin-right:8px;
+}
+
+/* PERFECT ALIGNMENT */
+
+.info-row{
+    padding:8px 0;
+    align-items:center;
+}
+
+.label{
+    color:#94a3b8;
+    font-size:15px;
+}
+
+.value{
+    font-size:15px;
+    font-weight:600;
+    text-align:left;
+}
+
+/* Colors */
+
+.v-cyan{
+    color:#22d3ee;
+}
+
+.v-green{
+    color:#22c55e;
+}
+
+.v-amber{
+    color:#f59e0b;
+}
+
+.v-white{
+    color:#f8fafc;
+}
+
+.v-white-bold{
+    color:white;
+    font-weight:700;
+}
+
+/* Interface Blocks */
+
+.iface-block{
+    margin-top:20px;
+    background:#0f172a;
+    border:1px solid #1e293b;
+    border-radius:10px;
+    padding:18px;
+}
+
+.iface-name{
+    font-size:17px;
+    font-weight:700;
+    color:white;
+    margin-bottom:15px;
+}
+
+/* Badge */
+
+.up-badge{
+    background:#14532d;
+    color:#22c55e;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+    margin-left:10px;
+}
+
+/* Desktop Alignment */
+
+@media(min-width:992px){
+
+    .info-row .label{
+        flex:0 0 250px;
+        max-width:250px;
+    }
+
+    .info-row .value{
+        flex:1;
+    }
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    .terminal-body{
+        padding:20px;
+    }
+
+    .terminal-title{
+        font-size:1.3rem;
+        line-height:1.5;
+    }
+
+    .refreshed-line{
+        text-align:left;
+        margin-top:15px;
+    }
+
+    .info-row{
+        border-bottom:1px dashed #1e293b;
+        padding:10px 0;
+    }
+}

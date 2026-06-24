@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Device Monitoring Dashboard</title>
+
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/theme-variables.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text-main);
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:260px;
+    height:100vh;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--card-border);
+    position:fixed;
+    top:0;
+    left:0;
+    padding:30px 20px;
+    z-index:100;
+}
+
+.sidebar h3{
+    color:var(--text-main);
+    font-weight:700;
+    font-size:24px;
+    margin-bottom:40px;
+}
+
+.sidebar a{
+    display:block;
+    color:var(--text-sub);
+    text-decoration:none;
+    padding:12px 16px;
+    border-radius:12px;
+    margin-bottom:8px;
+    font-weight:600;
+}
+
+.sidebar a:hover,
+.sidebar a.active{
+    color:var(--text-main);
+    background:var(--input-bg);
+}
+
+.main-content{
+    margin-left:260px;
+    padding:40px;
+    background:var(--bg);
+    min-height:100vh;
+}
+
+.container{
+    max-width:1400px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.header h1{
+    font-size:2rem;
+    font-weight:700;
+    color:var(--text-main);
+    margin:0;
+}
+
+.header p{
+    color:var(--text-sub);
+    margin-top:5px;
+}
+
+.live-status{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    padding:10px 18px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    color:var(--text-main);
+}
+
+.live-status.offline{
+    color:#ef4444;
+}
+
+.live-status.offline .dot{
+    background:#ef4444;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#22c55e;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+    0%{opacity:1;}
+    50%{opacity:.3;}
+    100%{opacity:1;}
+}
+
+.monitor-box{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+
+.info-card{
+    background:var(--input-bg);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:20px;
+    height:100%;
+    box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+
+.info-card:hover{
+    transform:translateY(-3px);
+    border-color:var(--accent);
+}
+
+.section-title{
+    font-size:1rem;
+    font-weight:700;
+    color:var(--text-main);
+    margin-bottom:18px;
+}
+
+.info-item{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    color:var(--label-color);
+}
+
+.info-item span:last-child{
+    color:var(--accent);
+    font-weight:600;
+}
+
+.cyber-line{
+    height:1px;
+    background:var(--card-border);
+    margin:30px 0;
+}
+
+.table-dark{
+    --bs-table-bg:var(--input-bg);
+    --bs-table-border-color:var(--card-border);
+}
+
+.table thead th{
+    color:var(--accent);
+}
+
+.table td{
+    color:var(--label-color);
+}
+
+.status-online{
+    background:rgba(34,197,94,.15);
+    color:#22c55e;
+    padding:5px 12px;
+    border-radius:30px;
+    font-size:.85rem;
+    font-weight:600;
+}
+
+.status-offline{
+    background:rgba(239,68,68,.15);
+    color:#ef4444;
+    padding:5px 12px;
+    border-radius:30px;
+    font-size:.85rem;
+    font-weight:600;
+}
+
+.usb-card{
+    background:var(--input-bg);
+    padding:15px 18px;
+    border-radius:12px;
+    margin-bottom:12px;
+}
+
+.connected{
+    color:#22c55e;
+    margin:0;
+    font-weight:600;
+}
+
+.removed{
+    color:#ef4444;
+    margin:0;
+    font-weight:600;
+}
+
+.counter-box{
+    background:var(--input-bg);
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    color:var(--accent);
+    font-weight:600;
+}
+
+.counter-box span{
+    font-size:1.2rem;
+}
+
+.empty-state{
+    color:var(--text-sub);
+    font-style:italic;
+    padding:10px 0;
+}
+
+.theme-toggle-btn{
+    position:fixed;
+    top:20px;
+    right:20px;
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    cursor:pointer;
+    z-index:9999;
+}
+
+@media(max-width:991px){
+    .sidebar{
+        width:100%;
+        height:auto;
+        position:relative;
+        padding:20px;
+    }
+
+    .sidebar h3{
+        margin-bottom:20px;
+    }
+
+    .sidebar a{
+        display:inline-block;
+        margin-right:10px;
+        margin-bottom:10px;
+    }
+
+    .main-content{
+        margin-left:0;
+        padding:20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
+
+<div class="sidebar">
+    <h3>NetMonitor</h3>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="SystemMonitoring.html">System Monitoring</a>
+    <a href="NetworkMonitoring.html">Network Monitoring</a>
+    <a href="DeviceScanning.html" style="display:none;">Device Scanning</a>
+    <a href="DeviceMonitoring.html" class="active">Device Monitoring</a>
+    <a href="AlertManagement.html">Alert Management</a>
+</div>
+
+<div class="main-content">
+<div class="container py-4">
+
+    <div class="header">
+        <div>
+            <h1>Device Monitoring</h1>
+            <p>Real-time Device Analytics</p>
+        </div>
+
+        <div class="live-status" id="liveStatus">
+            <span class="dot"></span>
+            <span id="liveStatusText">Live Monitoring</span>
+        </div>
+    </div>
+
+    <div class="monitor-box">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="info-card">
+                    <div class="section-title">Scan Summary</div>
+
+                    <div class="info-item"><span>Devices Found</span><span id="devicesFound">--</span></div>
+                    <div class="info-item"><span>New Devices</span><span id="newDevices">--</span></div>
+                    <div class="info-item"><span>ARP Alerts</span><span id="arpAlerts">--</span></div>
+                    <div class="info-item"><span>Upload Speed</span><span id="uploadSpeed">--</span></div>
+                    <div class="info-item"><span>Download Speed</span><span id="downloadSpeed">--</span></div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="info-card">
+                    <div class="section-title">Current Scan</div>
+
+                    <div class="info-item"><span>Scan ID</span><span id="scanId">--</span></div>
+                    <div class="info-item"><span>Date</span><span id="scanDate">--</span></div>
+                    <div class="info-item"><span>Time</span><span id="scanTime">--</span></div>
+                    <div class="info-item"><span>Range</span><span id="scanRange">--</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-line"></div>
+
+        <div class="section-title">Devices On Network</div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>MAC Address</th>
+                        <th>Hostname</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="devicesTable">
+                    <tr>
+                        <td colspan="4" class="empty-state">Loading devices...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cyber-line"></div>
+
+        <div class="section-title">USB Activity</div>
+
+        <div id="usbLogs">
+            <div class="empty-state">Loading USB activity...</div>
+        </div>
+
+        <div class="cyber-line"></div>
+
+        <div class="counter-box">
+            Next Scan In <span id="counter">10</span>s
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="js/theme.js"></script>
+
+<script>
+const SCAN_API = "http://192.168.121.128:8000/api/device-scan/";
+const NETWORK_API = "http://192.168.121.128:8000/api/network-status/";
+
+function setLiveStatus(isOnline){
+    const el = document.getElementById("liveStatus");
+    const text = document.getElementById("liveStatusText");
+
+    if(isOnline){
+        el.classList.remove("offline");
+        text.innerText = "Live Monitoring";
+    }else{
+        el.classList.add("offline");
+        text.innerText = "Connection Lost";
+    }
+}
+
+async function loadDashboard(){
+    try{
+        const scanResponse = await fetch(SCAN_API);
+        const networkResponse = await fetch(NETWORK_API);
+
+        if(!scanResponse.ok){
+            throw new Error("Device scan API failed");
+        }
+
+        const scanData = await scanResponse.json();
+
+        let networkData = {};
+        if(networkResponse.ok){
+            networkData = await networkResponse.json();
+        }
+
+        const summary = scanData.scan_summary || {};
+        const currentScan = scanData.current_scan || {};
+        const devices = scanData.devices || scanData.devices_on_network || [];
+
+        let usbLogs = [];
+            // The API returns a "usb" object with arrays of devices.
+            const usbData = scanData.usb || {};
+            if (Array.isArray(usbData.all_devices)) {
+                usbLogs = usbLogs.concat(
+                    usbData.all_devices.map(msg => ({ type: "connected", message: msg }))
+                );
+            }
+            if (Array.isArray(usbData.newly_connected)) {
+                usbLogs = usbLogs.concat(
+                    usbData.newly_connected.map(msg => ({ type: "connected", message: msg }))
+                );
+            }
+            if (Array.isArray(usbData.recently_removed)) {
+                usbLogs = usbLogs.concat(
+                    usbData.recently_removed.map(msg => ({ type: "removed", message: msg }))
+                );
+            }
+
+        document.getElementById("devicesFound").innerText =
+            summary.devices_found ?? devices.length ?? 0;
+
+        document.getElementById("newDevices").innerText =
+            summary.new_devices ?? 0;
+
+        document.getElementById("arpAlerts").innerText =
+            summary.arp_alerts ?? 0;
+
+        document.getElementById("uploadSpeed").innerText =
+            (networkData.live_throughput?.upload_mbps ?? 0) + " Mbps";
+
+        document.getElementById("downloadSpeed").innerText =
+            (networkData.live_throughput?.download_mbps ?? 0) + " Mbps";
+
+        const now = new Date();
+
+        document.getElementById("scanId").innerText =
+            currentScan.id || scanData.scan_id || "SCAN-" + now.getTime();
+
+        document.getElementById("scanDate").innerText =
+            currentScan.date || scanData.date || now.toLocaleDateString();
+
+        document.getElementById("scanTime").innerText =
+            currentScan.time || scanData.time || now.toLocaleTimeString();
+
+        document.getElementById("scanRange").innerText =
+            currentScan.range || scanData.scan_range || scanData.network_range || "192.168.121.0/24";
+
+        updateDevices(devices);
+        updateUSB(usbLogs);
+        setLiveStatus(true);
+
+    }catch(error){
+        console.error("Device Monitoring Error:", error);
+        setLiveStatus(false);
+    }
+}
+
+function updateDevices(devices){
+    const tbody = document.getElementById("devicesTable");
+    tbody.innerHTML = "";
+
+    if(!devices || devices.length === 0){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">No devices found on this scan</td>
+            </tr>
+        `;
+        return;
+    }
+
+    devices.forEach(device => {
+        const status = device.status || device.state || "Online";
+        const statusClass = status === "Online" ? "status-online" : "status-offline";
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${device.ip || device.ip_address || "--"}</td>
+                <td>${device.mac || device.mac_address || "--"}</td>
+                <td>${device.hostname || device.name || "Unknown"}</td>
+                <td><span class="${statusClass}">${status}</span></td>
+            </tr>
+        `;
+    });
+}
+
+function updateUSB(logs){
+    const container = document.getElementById("usbLogs");
+    container.innerHTML = "";
+
+    if(!logs || logs.length === 0){
+        container.innerHTML = `<div class="empty-state">No USB activity recorded</div>`;
+        return;
+    }
+
+    logs.forEach(log => {
+        const type = log.type || log.status || "connected";
+
+        const message =
+            log.message ||
+            log.name ||
+            log.device ||
+            log.description ||
+            log.product ||
+            "USB device detected";
+
+        container.innerHTML += `
+            <div class="usb-card">
+                <p class="${type === "removed" ? "removed" : "connected"}">
+                    ${type === "removed" ? "Removed" : "Connected"} - ${message}
+                </p>
+            </div>
+        `;
+    });
+}
+
+loadDashboard();
+
+setInterval(loadDashboard, 10000);
+
+let count = 10;
+
+setInterval(() => {
+    count--;
+
+    if(count <= 0){
+        count = 10;
+        loadDashboard();
+    }
+
+    document.getElementById("counter").innerText = count;
+}, 1000);
+</script>
+
+</body>
+</html>

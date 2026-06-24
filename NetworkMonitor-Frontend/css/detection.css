@@ -1,0 +1,12 @@
+/* Styles specific to the Device Detection page */
+
+.device-table img {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.device-row.new {
+    background-color: #fff3cd;
+}

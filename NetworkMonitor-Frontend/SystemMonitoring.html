@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Monitoring Dashboard</title>
+<link rel="stylesheet" href="css/theme-variables.css">
+<link rel="stylesheet" href="css/SystemMonitoring.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--card-border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 30px 20px;
+    z-index: 100;
+    transition: background .3s ease, border-color .3s ease;
+}
+
+.sidebar h3 {
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    display: block;
+    color: var(--text-sub);
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.sidebar a:hover, .sidebar a.active {
+    color: var(--text-main);
+    background: var(--input-bg);
+}
+
+.main-content {
+    margin-left: 260px;
+    padding: 40px;
+    background: var(--bg);
+    min-height: 100vh;
+    transition: background .3s ease;
+}
+
+@media (max-width: 991px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 20px;
+    }
+    .sidebar h3 {
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
+    <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
+</button>
+
+<div class="sidebar">
+    <h3>NetMonitor</h3>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="SystemMonitoring.html" class="active">System Monitoring</a>
+    <a href="NetworkMonitoring.html">Network Monitoring</a>
+    <a href="DeviceScanning.html" style="display: none;">Device Scanning (Hidden)</a>
+    <a href="DeviceMonitoring.html">Device Monitoring</a>
+    <a href="AlertManagement.html">Alert Management</a>
+</div>
+
+<div class="main-content">
+<div class="container">
+
+    <div class="header">
+        <div>
+            <h1>System Monitoring</h1>
+            <p>Real-time Device Analytics</p>
+        </div>
+        <div class="live-status">
+            <span class="dot"></span>
+            Live Monitoring
+        </div>
+    </div>
+
+    <div class="top-grid">
+        <div class="card">
+            <h3>Device Information</h3>
+            <div class="device-info">
+                <div class="row-item">
+                    <span>Device Name</span>
+                    <span id="devName">Loading...</span>
+                </div>
+                <div class="row-item">
+                    <span>IP Address</span>
+                    <span id="devIP">Loading...</span>
+                </div>
+                <div class="row-item">
+                    <span>MAC Address</span>
+                    <span id="devMAC">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Open Ports</h3>
+            <div class="ports" id="portsContainer">
+                <span style="color:#8b949e;">Loading...</span>
+            </div>
+            <div class="total-port">
+                Total Listening Ports : <strong id="totalPorts">0</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="card">
+            <div class="card-top">
+                <h3>CPU Usage</h3>
+                <div class="metric" id="cpuMetric">0%</div>
+            </div>
+            <canvas id="cpuChart"></canvas>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <h3>RAM Usage</h3>
+                <div class="metric" id="ramMetric">0%</div>
+            </div>
+            <canvas id="ramChart"></canvas>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <h3>Disk Usage</h3>
+                <div class="metric" id="diskMetric">0%</div>
+            </div>
+            <canvas id="diskChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card health-card">
+        <h3>Health Status</h3>
+        <div class="health-list">
+            <div class="health-item">
+                <span>Server</span>
+                <span class="badge unknown" id="healthServer">Loading...</span>
+            </div>
+            <div class="health-item">
+                <span>Database</span>
+                <span class="badge unknown" id="healthDB">Loading...</span>
+            </div>
+            <div class="health-item">
+                <span>Firewall</span>
+                <span class="badge unknown" id="healthFirewall">Loading...</span>
+            </div>
+            <div class="health-item">
+                <span>CPU Temperature</span>
+                <span class="badge unknown" id="healthTemp">Loading...</span>
+            </div>
+            <div class="health-item">
+                <span>Critical Alerts</span>
+                <span class="badge unknown" id="healthAlerts">0</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script src="js/theme.js"></script>
+<script>
+
+const API_URL = 'http://192.168.121.128:8000/api/system-status/';
+
+let cpuChart, ramChart, diskChart;
+let cpuData = [], ramData = [], diskData = [], timeLabels = [];
+const MAX_POINTS = 20;
+
+// ──── Simulated dynamic temperature ────
+let simulatedTemp = 45; // starting value
+
+function getSimulatedTemperature() {
+    // random change between -5 and +5
+    const change = Math.floor(Math.random() * 11) - 5;
+    simulatedTemp += change;
+    // clamp between 40 and 95
+    if (simulatedTemp < 40) simulatedTemp = 40;
+    if (simulatedTemp > 95) simulatedTemp = 95;
+    return simulatedTemp + '°C';
+}
+
+function initCharts() {
+    const opts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        scales: { x: { display: false }, y: { beginAtZero: true, max: 100 } },
+        plugins: { legend: { display: false } },
+        elements: { line: { tension: 0.2 } }
+    };
+
+    cpuChart = new Chart(document.getElementById('cpuChart'), {
+        type: 'line',
+        data: { labels: timeLabels, datasets: [{ label: 'CPU %', data: cpuData, borderColor: '#58a6ff', backgroundColor: 'rgba(88,166,255,0.1)', fill: true, pointRadius: 0 }] },
+        options: opts
+    });
+
+    ramChart = new Chart(document.getElementById('ramChart'), {
+        type: 'line',
+        data: { labels: timeLabels, datasets: [{ label: 'RAM %', data: ramData, borderColor: '#f0883e', backgroundColor: 'rgba(240,136,62,0.1)', fill: true, pointRadius: 0 }] },
+        options: opts
+    });
+
+    diskChart = new Chart(document.getElementById('diskChart'), {
+        type: 'line',
+        data: { labels: timeLabels, datasets: [{ label: 'Disk %', data: diskData, borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)', fill: true, pointRadius: 0 }] },
+        options: opts
+    });
+}
+
+function updateCharts(cpu, ram, disk) {
+    const now = new Date().toLocaleTimeString();
+    timeLabels.push(now);
+    cpuData.push(cpu); ramData.push(ram); diskData.push(disk);
+    
+    if (timeLabels.length > MAX_POINTS) {
+        timeLabels.shift(); cpuData.shift(); ramData.shift(); diskData.shift();
+    }
+    
+    cpuChart.data.labels = timeLabels;
+    cpuChart.data.datasets[0].data = cpuData;
+    cpuChart.update();
+    
+    ramChart.data.labels = timeLabels;
+    ramChart.data.datasets[0].data = ramData;
+    ramChart.update();
+    
+    diskChart.data.labels = timeLabels;
+    diskChart.data.datasets[0].data = diskData;
+    diskChart.update();
+}
+
+function setBadge(id, value, positiveStates) {
+    const el = document.getElementById(id);
+    el.textContent = value;
+    let cls = 'badge ';
+    if (positiveStates.includes(value)) cls += 'online';
+    else if (value === 'Offline' || value === 'Disconnected' || value === 'Inactive' || value === 'Unknown') cls += 'danger';
+    else cls += 'unknown';
+    el.className = cls;
+}
+
+async function fetchSystemData() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+
+        // ── Device Info ──────────────────────────────────────
+        document.getElementById('devName').textContent = data.device_info?.hostname || 'Unknown';
+        document.getElementById('devIP').textContent   = data.device_info?.ip_address || 'N/A';
+        document.getElementById('devMAC').textContent  = data.device_info?.mac_address || 'N/A';
+
+        // ── Open Ports ───────────────────────────────────────
+        const ports = data.open_ports?.ports || [];
+        const container = document.getElementById('portsContainer');
+        container.innerHTML = '';
+        if (ports.length === 0) {
+            container.innerHTML = '<span style="color:#8b949e;">No open ports</span>';
+        } else {
+            ports.forEach(port => {
+                const span = document.createElement('span');
+                span.className = 'port';
+                span.textContent = port;
+                container.appendChild(span);
+            });
+        }
+        document.getElementById('totalPorts').textContent = data.open_ports?.total_listening ?? 0;
+
+        // ── System Usage (CPU, RAM, Disk) ────────────────────
+        const cpu  = data.system_usage?.cpu_usage || 0;
+        const ram  = data.system_usage?.ram_usage || 0;
+        const disk = data.system_usage?.disk_usage || 0;
+        document.getElementById('cpuMetric').textContent  = cpu + '%';
+        document.getElementById('ramMetric').textContent  = ram + '%';
+        document.getElementById('diskMetric').textContent = disk + '%';
+
+        // ── Health Status ────────────────────────────────────
+        const health = data.health_status || {};
+        setBadge('healthServer',   health.server?.value   || 'Unknown', ['Online']);
+        setBadge('healthDB',       health.database?.value || 'Unknown', ['Connected']);
+        setBadge('healthFirewall', health.firewall?.value || 'Unknown', ['Protected']);
+
+        // ── CPU Temperature (ALWAYS simulated dynamic, ignoring API) ──
+        const tempStr = getSimulatedTemperature();  // <-- yahi change kiya hai
+        const tempNum = parseFloat(tempStr);
+        const tempEl = document.getElementById('healthTemp');
+        tempEl.textContent = tempStr;
+        let cls = 'badge ';
+        if (tempNum >= 85)      cls += 'danger';
+        else if (tempNum >= 70) cls += 'warning';
+        else                    cls += 'online';
+        tempEl.className = cls;
+
+        // ── Critical Alerts ──────────────────────────────────
+        const criticalCount = health.critical_alerts?.value ?? 0;
+        const alertEl = document.getElementById('healthAlerts');
+        alertEl.textContent = criticalCount + (criticalCount !== 1 ? ' Alerts' : ' Alert');
+        alertEl.className = 'badge ' + (criticalCount > 0 ? 'danger' : 'online');
+
+        // ── Update Charts ────────────────────────────────────
+        updateCharts(cpu, ram, disk);
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    fetchSystemData();
+    setInterval(fetchSystemData, 5000);
+});
+</script>
+
+</body>
+</html>

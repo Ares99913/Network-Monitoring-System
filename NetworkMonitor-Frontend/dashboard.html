@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Monitoring Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="css/theme-variables.css">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    background:var(--bg);
+    color:var(--text-main);
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+}
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--card-border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 30px 20px;
+    z-index: 100;
+    transition: background .3s ease, border-color .3s ease;
+}
+
+.sidebar h3 {
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    display: block;
+    color: var(--text-sub);
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.sidebar a:hover, .sidebar a.active {
+    color: var(--text-main);
+    background: var(--input-bg);
+}
+/* Main Content Area */
+.main-content {
+    margin-left: 260px;
+    padding: 40px;
+    background: var(--bg);
+    min-height: 100vh;
+    transition: background .3s ease;
+}
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+.topbar h4 {
+    color: var(--text-main);
+    font-weight: 700;
+    margin: 0;
+}
+.topbar span {
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 6px 16px;
+    border-radius: 30px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+/* Card custom styles */
+.circle-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    transition: 0.3s;
+    height: 100%;
+}
+.circle-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1);
+}
+
+.circle-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 15px auto;
+}
+
+.circle-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.circle-label {
+    font-size: 14px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--accent);
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.card-custom, .logs-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 25px;
+    height: 100%;
+    transition: background .3s ease, border-color .3s ease;
+}
+
+.card-custom h5, .logs-card h5 {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+/* SVG Progress Rings */
+.progress-ring {
+    stroke-dasharray: 377;
+    stroke-dashoffset: 377;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-width: 8;
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease-in-out, stroke 0.5s ease;
+}
+
+.bg-ring {
+    stroke: var(--input-border);
+    stroke-width: 8;
+    fill: none;
+}
+
+/* Alert Boxes */
+.alert-box {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--danger);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    color: #f87171;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.alert-box.warn {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid var(--warning);
+    color: #fbbf24;
+}
+
+/* Table styles */
+.table-dark {
+    --bs-table-bg: var(--card-bg);
+    --bs-table-border-color: var(--card-border);
+}
+
+.table th {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.table td {
+    color: var(--label-color);
+}
+
+/* Responsive sidebar */
+@media (max-width: 991px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 20px;
+    }
+    .sidebar h3 {
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+</style>
+</head>
+<body>
+<button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
+<div class="sidebar">
+    <h3>NetMonitor</h3>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="SystemMonitoring.html">System Monitoring</a>
+    <a href="NetworkMonitoring.html">Network Monitoring</a>
+    <a href="DeviceScanning.html" style="display: none;">Device Scanning (Hidden)</a>
+    <a href="DeviceMonitoring.html">Device Monitoring</a>
+    <a href="AlertManagement.html">Alert Management</a>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h4>Dashboard</h4>
+        <span>Administrator</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="circle-card">
+                <div class="circle-container">
+                    <svg width="140" height="140">
+                        <circle class="bg-ring" cx="70" cy="70" r="60"></circle>
+                        <circle id="cpuRing" class="progress-ring" cx="70" cy="70" r="60"></circle>
+                    </svg>
+                    <div class="circle-value" id="cpuValue">--</div>
+                </div>
+                <div class="circle-label">CPU Usage</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="circle-card">
+                <div class="circle-container">
+                    <svg width="140" height="140">
+                        <circle class="bg-ring" cx="70" cy="70" r="60"></circle>
+                        <circle id="memoryRing" class="progress-ring" cx="70" cy="70" r="60"></circle>
+                    </svg>
+                    <div class="circle-value" id="memoryValue">--</div>
+                </div>
+                <div class="circle-label">Memory Usage</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="circle-card">
+                <div class="circle-container">
+                    <svg width="140" height="140">
+                        <circle class="bg-ring" cx="70" cy="70" r="60"></circle>
+                        <circle id="networkRing" class="progress-ring" cx="70" cy="70" r="60"></circle>
+                    </svg>
+                    <div class="circle-value" id="networkValue">--</div>
+                </div>
+                <div class="circle-label">Disk Usage</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="circle-card">
+                <div class="metric" id="activeDevices">--</div>
+                <div class="circle-label">Active Devices</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <h5 class="mb-4">Traffic Analytics</h5>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card-custom">
+                <h5 class="mb-3">Critical Alerts</h5>
+                <div id="criticalAlertsContainer">
+                    <div class="alert-box text-center bg-transparent border-0 text-muted fst-italic py-3">
+                        Loading alerts...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="logs-card">
+                <h5 class="mb-3">Recent Logs</h5>
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Device</th>
+                            <th>Status</th>
+                            <th>Severity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted fst-italic py-3">Loading logs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script>
+const SYSTEM_API  = "http://192.168.121.128:8000/api/system-status/";
+const NETWORK_API = "http://192.168.121.128:8000/api/network-status/";
+const ALERT_API   = "http://192.168.121.128:8000/api/alert-status/";
+const SCAN_API    = "http://192.168.121.128:8000/api/device-scan/";
+
+let trafficChartInstance = null;
+const maxDataPoints = 10;
+const chartLabels = Array(maxDataPoints).fill("");
+const uploadData = Array(maxDataPoints).fill(0);
+const downloadData = Array(maxDataPoints).fill(0);
+
+// ---- Theme-aware chart colors ----
+// Chart.js render karta hai canvas pe, isliye CSS variables seedhe
+// kaam nahi karte - JS se actual color values nikalne padte hain.
+function getChartColors() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    return {
+        gridColor: isLight ? "#e2e8f0" : "#1e293b",
+        tickColor: isLight ? "#64748b" : "#94a3b8"
+    };
+}
+
+function setCircleProgress(ringId, percent, textEl) {
+    const ring = document.getElementById(ringId);
+    if (!ring) return;
+    const circumference = 2 * Math.PI * 60; // ~377
+    const offset = circumference - (percent / 100) * circumference;
+    ring.style.strokeDashoffset = offset;
+    
+    if (textEl) {
+        textEl.innerText = Math.round(percent) + "%";
+    }
+    
+    // Custom colors matching system metrics
+    if (ringId === 'cpuRing') {
+        if (percent >= 90) ring.style.stroke = "#ef4444";
+        else if (percent >= 75) ring.style.stroke = "#f59e0b";
+        else ring.style.stroke = "#38bdf8";
+    } else if (ringId === 'memoryRing') {
+        if (percent >= 90) ring.style.stroke = "#ef4444";
+        else if (percent >= 75) ring.style.stroke = "#f59e0b";
+        else ring.style.stroke = "#a855f7"; // purple memory
+    } else {
+        if (percent >= 90) ring.style.stroke = "#ef4444";
+        else if (percent >= 75) ring.style.stroke = "#f59e0b";
+        else ring.style.stroke = "#22c55e"; // green disk
+    }
+}
+
+function updateTrafficChart(uploadSpeed, downloadSpeed) {
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    chartLabels.shift();
+    chartLabels.push(now);
+    
+    uploadData.shift();
+    uploadData.push(uploadSpeed);
+    
+    downloadData.shift();
+    downloadData.push(downloadSpeed);
+
+    if (trafficChartInstance) {
+        trafficChartInstance.update();
+    } else {
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        const colors = getChartColors();
+        trafficChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Upload (Mbps)',
+                        data: uploadData,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Download (Mbps)',
+                        data: downloadData,
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: colors.tickColor, font: { family: 'Segoe UI' } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: colors.gridColor },
+                        ticks: { color: colors.tickColor }
+                    },
+                    y: {
+                        grid: { color: colors.gridColor },
+                        ticks: { color: colors.tickColor }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Theme switch hone par chart ke colors bhi turant refresh karo
+function refreshChartTheme() {
+    if (!trafficChartInstance) return;
+    const colors = getChartColors();
+    trafficChartInstance.options.plugins.legend.labels.color = colors.tickColor;
+    trafficChartInstance.options.scales.x.grid.color = colors.gridColor;
+    trafficChartInstance.options.scales.x.ticks.color = colors.tickColor;
+    trafficChartInstance.options.scales.y.grid.color = colors.gridColor;
+    trafficChartInstance.options.scales.y.ticks.color = colors.tickColor;
+    trafficChartInstance.update();
+}
+
+// theme.js ka toggle button click hote hi listen karo aur chart refresh karo
+document.addEventListener("click", function (e) {
+    if (e.target.closest(".theme-toggle-btn")) {
+        // thoda delay taaki data-theme attribute pehle set ho jaye
+        setTimeout(refreshChartTheme, 50);
+    }
+});
+
+function updateCriticalAlerts(activeAlerts) {
+    const container = document.getElementById('criticalAlertsContainer');
+    container.innerHTML = "";
+
+    // Show warnings and critical level alerts
+    const severeAlerts = activeAlerts.filter(a => a.level === "CRITICAL" || a.level === "WARN" || a.level === "WARNING");
+
+    if (severeAlerts.length === 0) {
+        container.innerHTML = `
+            <div class="alert-box text-center bg-transparent border-0 text-muted fst-italic py-3">
+                No active critical alerts. All systems healthy.
+            </div>
+        `;
+        return;
+    }
+
+    severeAlerts.forEach(alert => {
+        const typeClass = (alert.level === "CRITICAL") ? "" : "warn";
+        container.innerHTML += `
+            <div class="alert-box ${typeClass}">
+                ${alert.message}
+            </div>
+        `;
+    });
+}
+
+function updateLogsTable(recentHistory) {
+    const tbody = document.getElementById('logsTableBody');
+    tbody.innerHTML = "";
+
+    if (!recentHistory || recentHistory.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted fst-italic py-3">No log history available</td>
+            </tr>
+        `;
+        return;
+    }
+
+    // Display latest 10 logs (reverse list to show newest first)
+    const logs = [...recentHistory].reverse().slice(0, 10);
+
+    logs.forEach(log => {
+        const timePart = log.timestamp ? log.timestamp.split(" ")[1] : "--";
+        
+        let badgeClass = "bg-info text-white";
+        if (log.level === "CRITICAL") badgeClass = "bg-danger text-white";
+        else if (log.level === "WARN" || log.level === "WARNING") badgeClass = "bg-warning text-dark";
+
+        let device = "System";
+        if (log.message.includes("Firewall")) device = "Firewall";
+        else if (log.message.includes("Database")) device = "Database";
+        else if (log.message.includes("Server")) device = "Web Server";
+        else if (log.message.includes("Port") || log.message.includes("Bandwidth")) device = "Network";
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${timePart}</td>
+                <td>${device}</td>
+                <td>${log.message}</td>
+                <td><span class="badge ${badgeClass}">${log.level}</span></td>
+            </tr>
+        `;
+    });
+}
+
+async function refreshDashboard() {
+    try {
+        const [systemRes, networkRes, alertRes, scanRes] = await Promise.all([
+            fetch(SYSTEM_API),
+            fetch(NETWORK_API),
+            fetch(ALERT_API),
+            fetch(SCAN_API)
+        ]);
+
+        if (!systemRes.ok || !networkRes.ok || !alertRes.ok || !scanRes.ok) {
+            throw new Error("One or more API request failed");
+        }
+
+        const systemData = await systemRes.json();
+        const networkData = await networkRes.json();
+        const alertData = await alertRes.json();
+        const scanData = await scanRes.json();
+
+        // 1. Resource usage progress rings (CPU, Memory, Disk)
+        const cpu = systemData.system_usage.cpu_usage;
+        const ram = systemData.system_usage.ram_usage;
+        const disk = systemData.system_usage.disk_usage;
+
+        setCircleProgress('cpuRing', cpu, document.getElementById('cpuValue'));
+        setCircleProgress('memoryRing', ram, document.getElementById('memoryValue'));
+        setCircleProgress('networkRing', disk, document.getElementById('networkValue'));
+
+        // 2. Active devices
+        document.getElementById('activeDevices').innerText = scanData.scan_summary.devices_found || 0;
+
+        // 3. Traffic chart (live MBps data)
+        const upSpeed = networkData.live_throughput.upload_mbps;
+        const downSpeed = networkData.live_throughput.download_mbps;
+        updateTrafficChart(upSpeed, downSpeed);
+
+        // 4. Alert Boxes
+        updateCriticalAlerts(alertData.active_alerts);
+        // 5. Recent Logs
+        updateLogsTable(alertData.recent_history);
+    } catch (error) {
+        console.error("Dashboard update failed:", error);
+    }
+}
+// Initial Load
+refreshDashboard();
+// Auto Refresh every 10 seconds
+setInterval(refreshDashboard, 10000);
+</script>
+</body>
+</html>

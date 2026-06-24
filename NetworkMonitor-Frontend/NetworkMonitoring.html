@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Monitoring Dashboard</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/bootstrap-icons.min.css">
+<link rel="stylesheet" href="css/theme-variables.css">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    background:var(--bg);
+    color:var(--text-main);
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+}
+
+/* Sidebar Styling (same as System Monitoring page) */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--card-border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 30px 20px;
+    z-index: 100;
+    transition: background .3s ease, border-color .3s ease;
+}
+
+.sidebar h3 {
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    display: block;
+    color: var(--text-sub);
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+.sidebar a:hover, .sidebar a.active {
+    color: var(--text-main);
+    background: var(--input-bg);
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: 260px;
+    padding: 40px;
+    background: var(--bg);
+    min-height: 100vh;
+    transition: background .3s ease;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.topbar h4 {
+    color: var(--text-main);
+    font-weight: 700;
+    margin: 0;
+}
+.topbar span {
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 6px 16px;
+    border-radius: 30px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.live-status{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition: background .3s ease, border-color .3s ease;
+}
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#22c55e;
+    box-shadow:0 0 10px #22c55e;
+}
+
+/* Cards */
+.metric-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.metric-card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:25px;
+    transition:.3s, background .3s ease, border-color .3s ease;
+}
+
+.metric-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--accent);
+}
+
+.metric-title{
+    color:var(--text-sub);
+    margin-bottom:12px;
+}
+
+.metric-value{
+    color:var(--accent);
+    font-size:32px;
+    font-weight:700;
+}
+
+.main-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+    margin-bottom:25px;
+}
+.card-box{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:25px;
+    transition: background .3s ease, border-color .3s ease;
+}
+.card-box h3{
+    color:var(--accent);
+    margin-bottom:20px;
+}
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    padding:14px 0;
+    border-bottom:1px solid var(--card-border);
+    color:var(--label-color);
+}
+.info-row:last-child{
+    border:none;
+}
+
+.traffic-card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:25px;
+    transition: background .3s ease, border-color .3s ease;
+}
+.traffic-card h3{
+    color:var(--accent);
+    margin-bottom:25px;
+}
+.big-traffic{
+    font-size:48px;
+    font-weight:700;
+    color:var(--accent);
+}
+.progress{
+    height:16px;
+    margin-top:20px;
+    background:var(--input-bg);
+}
+.progress-bar{
+    background:var(--accent);
+}
+.interface-card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:20px;
+    padding:25px;
+    transition: background .3s ease, border-color .3s ease;
+}
+
+.interface-card h3{
+    color:var(--accent);
+    margin-bottom:20px;
+}
+
+.interface{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--input-bg);
+    padding:18px;
+    border-radius:14px;
+    margin-bottom:15px;
+}
+
+.status{
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+}
+.status.up{
+    background:#14532d;
+    color:#4ade80;
+}
+.status.down{
+    background:#7f1d1d;
+    color:#f87171;
+}
+
+@media(max-width:991px){
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 20px;
+    }
+    .sidebar h3 {
+        margin-bottom: 20px;
+    }
+    .sidebar a {
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+@media(max-width:1200px){
+    .metric-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+    .main-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:768px){
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+    .metric-grid{
+        grid-template-columns:1fr;
+    }
+    .metric-value{
+        font-size:26px;
+    }
+    .big-traffic{
+        font-size:36px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+</button>
+
+<div class="sidebar">
+    <h3>NetMonitor</h3>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="SystemMonitoring.html">System Monitoring</a>
+    <a href="NetworkMonitoring.html" class="active">Network Monitoring</a>
+    <a href="DeviceScanning.html" style="display: none;">Device Scanning (Hidden)</a>
+    <a href="DeviceMonitoring.html">Device Monitoring</a>
+    <a href="AlertManagement.html">Alert Management</a>
+</div>
+
+<div class="main-content">
+
+    <div class="topbar">
+        <div>
+            <h4>Network Monitoring</h4>
+        </div>
+
+        <div class="live-status">
+            <div class="dot"></div>
+            <span style="color:var(--text-main);">LIVE MONITORING</span>
+        </div>
+    </div>
+
+    <div class="metric-grid">
+
+        <div class="metric-card">
+            <div class="metric-title">Upload Speed</div>
+            <div class="metric-value" id="uploadSpeed">0 Mbps</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-title">Download Speed</div>
+            <div class="metric-value" id="downloadSpeed">0 Mbps</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-title">Packets Sent</div>
+            <div class="metric-value" id="packetsSent">0</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-title">Packets Received</div>
+            <div class="metric-value" id="packetsReceived">0</div>
+        </div>
+
+    </div>
+
+    <div class="main-grid">
+
+        <div class="card-box">
+            <h3>Device Identity</h3>
+
+            <div class="info-row">
+                <span>Hostname</span>
+                <span id="hostname">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span>IP Address</span>
+                <span id="ipAddress">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span>MAC Address</span>
+                <span id="macAddress">Loading...</span>
+            </div>
+
+            <div class="info-row">
+                <span>Last Refresh</span>
+                <span id="refreshTime">Loading...</span>
+            </div>
+        </div>
+
+        <div class="card-box">
+            <h3>Active Connections</h3>
+
+            <div class="info-row">
+                <span>Established</span>
+                <span id="established">0</span>
+            </div>
+
+            <div class="info-row">
+                <span>Listening</span>
+                <span id="listening">0</span>
+            </div>
+
+            <div class="info-row">
+                <span>Time Wait</span>
+                <span id="timeWait">0</span>
+            </div>
+
+            <div class="info-row">
+                <span>Total Sockets</span>
+                <span id="totalSockets">0</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="traffic-card">
+        <h3>Total Traffic Overview</h3>
+        <div class="big-traffic" id="totalTraffic">
+            0 GB
+        </div>
+        <div class="progress">
+            <div class="progress-bar" id="trafficBar" style="width:0%"></div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <strong>Data Sent</strong><br>
+                <span id="dataSent">0 MB</span>
+            </div>
+            <div class="col-md-6">
+                <strong>Data Received</strong><br>
+                <span id="dataReceived">0 MB</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="interface-card">
+        <h3>Network Interfaces</h3>
+        <div id="interfacesContainer">
+            <span style="color:var(--text-sub);">Loading...</span>
+        </div>
+    </div>
+
+</div>
+
+<script src="js/theme.js"></script>
+<script>
+    const NETWORK_API = 'http://192.168.121.128:8000/api/network-status/';
+
+    async function fetchNetworkData() {
+        try {
+            const response = await fetch(NETWORK_API);
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const data = await response.json();
+
+            document.getElementById('hostname').textContent   = data.device_identity.hostname || 'Unknown';
+            document.getElementById('ipAddress').textContent   = data.device_identity.ip_address || 'N/A';
+            document.getElementById('macAddress').textContent  = data.device_identity.mac_address || 'N/A';
+
+            // ── Timestamp ────────────────────────────────────
+            document.getElementById('refreshTime').textContent = data.timestamp || new Date().toLocaleString();
+
+            // ── Live Throughput (Upload / Download Speed) ────
+            document.getElementById('uploadSpeed').textContent   = data.live_throughput.upload_mbps + ' Mbps';
+            document.getElementById('downloadSpeed').textContent  = data.live_throughput.download_mbps + ' Mbps';
+
+            // ── Packets ──────────────────────────────────────
+            document.getElementById('packetsSent').textContent     = data.packets.packets_sent.toLocaleString();
+            document.getElementById('packetsReceived').textContent  = data.packets.packets_received.toLocaleString();
+
+            // ── Active Connections ───────────────────────────
+            const conns = data.connections;
+            if (conns && !conns.error) {
+                document.getElementById('established').textContent  = conns.established;
+                document.getElementById('listening').textContent    = conns.listening;
+                document.getElementById('timeWait').textContent     = conns.time_wait;
+                document.getElementById('totalSockets').textContent = conns.total_sockets;
+            } else {
+                document.getElementById('established').textContent  = 'N/A';
+                document.getElementById('listening').textContent    = 'N/A';
+                document.getElementById('timeWait').textContent     = 'N/A';
+                document.getElementById('totalSockets').textContent = conns.error || 'N/A';
+            }
+
+            // ── Total Data Transfer ─────────────────────────
+            const transfer = data.total_data_transfer;
+            document.getElementById('totalTraffic').textContent  = transfer.total_traffic_gb + ' GB';
+            document.getElementById('dataSent').textContent      = transfer.data_sent_mb + ' MB';
+            document.getElementById('dataReceived').textContent  = transfer.data_received_mb + ' MB';
+
+            // Traffic progress bar (max 10GB assumed)
+            const trafficPercent = Math.min((transfer.total_traffic_gb / 10) * 100, 100);
+            document.getElementById('trafficBar').style.width = trafficPercent + '%';
+
+            // ── Network Interfaces ──────────────────────────
+            const ifaces = data.interfaces || [];
+            const container = document.getElementById('interfacesContainer');
+            if (ifaces.length > 0) {
+                container.innerHTML = ifaces.map(iface => {
+                    const statusClass = iface.is_up ? 'up' : 'down';
+                    const statusText  = iface.is_up ? '▲ UP' : '▼ DOWN';
+                    const speedText   = iface.speed > 0 ? ` | ${iface.speed} Mbps` : '';
+                    return `
+                        <div class="interface">
+                            <div>
+                                <strong>${iface.name}</strong><br>
+                                ${iface.ip}${speedText} | MTU ${iface.mtu}
+                            </div>
+                            <span class="status ${statusClass}">${statusText}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                container.innerHTML = '<span style="color:var(--text-sub);">No interfaces detected</span>';
+            }
+
+        } catch (error) {
+            console.error('Network Fetch Error:', error);
+            document.getElementById('refreshTime').textContent = '⚠️ Error loading data';
+        }
+    }
+
+    // Load immediately and refresh every 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchNetworkData();
+        setInterval(fetchNetworkData, 5000);
+    });
+</script>
+
+</body>
+</html>

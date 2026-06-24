@@ -1,0 +1,16 @@
+/* Global styles shared across all pages */
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #212529;
+}
+
+.navbar-brand img {
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+main {
+    padding-bottom: 2rem;
+}

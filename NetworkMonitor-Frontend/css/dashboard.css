@@ -1,0 +1,182 @@
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    background:#0f172a;
+    color:#f8fafc;
+    font-family:'Segoe UI',sans-serif;
+}
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:#111827;
+    position:fixed;
+    left:0;
+    top:0;
+    padding:25px;
+    border-right:1px solid #1f2937;
+}
+
+.sidebar h3{
+    color:#38bdf8;
+    margin-bottom:35px;
+    font-weight:700;
+}
+
+.sidebar a{
+    display:block;
+    color:#cbd5e1;
+    text-decoration:none;
+    padding:12px 15px;
+    margin-bottom:10px;
+    border-radius:10px;
+    transition:.25s;
+}
+
+.sidebar a:hover{
+    background:#1e293b;
+    color:#ffffff;
+}
+.main-content{
+    margin-left:250px;
+    padding:25px;
+}
+.topbar{
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:16px;
+    padding:18px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+.topbar h4{
+    margin:0;
+    font-weight:600;
+}
+.card-custom,
+.circle-card,
+.logs-card{
+    background:#111827;
+    border:1px solid #1f2937;
+    border-radius:18px;
+    box-shadow:none;
+}
+.card-custom{
+    padding:20px;
+}
+.circle-card{
+    padding:25px;
+    text-align:center;
+    transition:.25s ease;
+}
+.circle-card:hover,
+.card-custom:hover,
+.logs-card:hover{
+    border-color:#334155;
+    /* transform:translateY(-2px); */
+}
+.circle-container{
+    position:relative;
+    width:150px;
+    height:150px;
+    margin:auto;
+}
+.circle-container svg{
+    transform:rotate(-90deg);
+}
+.bg-ring{
+    fill:none;
+    stroke:#1e293b;
+    stroke-width:10;
+}
+.progress-ring{
+    fill:none;
+    stroke-width:10;
+    stroke-linecap:round;
+    stroke-dasharray:377;
+    stroke-dashoffset:377;
+    transition:.8s ease;
+}
+.circle-value{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:34px;
+    font-weight:600;
+    color:#f8fafc;
+    letter-spacing:-1px;
+}
+.circle-label{
+    margin-top:18px;
+    color:#94a3b8;
+    font-size:15px;
+    font-weight:500;
+}
+.green-glow,
+.orange-glow,
+.red-glow{
+    filter:none;
+}
+.chart-placeholder{
+    height:320px;
+    border-radius:15px;
+    background:#0f172a;
+    border:1px dashed #334155;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#64748b;
+    font-size:1rem;
+}
+.alert-box{
+    background:#1e1b22;
+    border-left:4px solid #ef4444;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:15px;
+    color:#f1f5f9;
+}
+.logs-card{
+    padding:20px;
+}
+.table-dark{
+    --bs-table-bg:#111827;
+    --bs-table-border-color:#1f2937;
+}
+.table th{
+    color:#cbd5e1;
+    font-weight:600;
+}
+
+.table td{
+    color:#f8fafc;
+}
+.metric{
+    font-size:3.5rem;
+    font-weight:700;
+    color:#38bdf8;
+    margin-top:20px;
+}
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-track{
+    background:#111827;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#475569;
+}
