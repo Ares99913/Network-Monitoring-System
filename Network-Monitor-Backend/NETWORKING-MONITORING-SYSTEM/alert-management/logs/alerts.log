@@ -1,0 +1,32 @@
+[CRITICAL] 15-06-2026  15:19:01  Firewall Inactive — System Unprotected
+[WARN] 15-06-2026  15:19:01  Database Disconnected
+[WARN] 15-06-2026  15:19:01  Suspicious Port Open — 22
+[INFO] 15-06-2026  15:19:17  All systems normal
+[INFO] 15-06-2026  15:19:29  All systems normal
+[CRITICAL] 15-06-2026  23:12:19  Firewall Inactive — System Unprotected
+[WARN] 15-06-2026  23:12:19  Database Disconnected
+[WARN] 15-06-2026  23:12:19  Suspicious Port Open — 22
+[INFO] 15-06-2026  23:12:35  All systems normal
+[INFO] 15-06-2026  23:12:47  All systems normal
+[WARN] 15-06-2026  23:12:59  Database Disconnected
+[INFO] 15-06-2026  23:13:14  All systems normal
+[CRITICAL] 16-06-2026  12:23:30  Firewall Inactive — System Unprotected
+[WARN] 16-06-2026  12:23:30  Database Disconnected
+[WARN] 16-06-2026  12:23:30  Suspicious Port Open — 22
+[INFO] 16-06-2026  12:23:42  All systems normal
+[CRITICAL] 16-06-2026  12:25:20  Firewall Inactive — System Unprotected
+[WARN] 16-06-2026  12:25:20  Database Disconnected
+[WARN] 16-06-2026  12:25:20  Suspicious Port Open — 22
+[INFO] 16-06-2026  12:25:32  All systems normal
+[CRITICAL] 16-06-2026  22:59:58  Firewall Inactive — System Unprotected
+[WARN] 16-06-2026  22:59:58  Database Disconnected
+[WARN] 16-06-2026  22:59:58  Suspicious Port Open — 22
+[INFO] 16-06-2026  23:00:10  All systems normal
+[CRITICAL] 16-06-2026  23:21:52  Firewall Inactive — System Unprotected
+[WARN] 16-06-2026  23:21:52  Database Disconnected
+[WARN] 16-06-2026  23:21:52  Suspicious Port Open — 22
+[INFO] 16-06-2026  23:22:04  All systems normal
+[INFO] 16-06-2026  23:22:20  All systems normal
+[CRITICAL] 18-06-2026  09:37:06  Firewall Inactive — System Unprotected
+[WARN] 18-06-2026  09:37:06  Database Disconnected
+[WARN] 18-06-2026  09:37:06  Suspicious Port Open — 22

@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Brute Force Monitor</h1>
+
+<div style="display: flex; gap: 40px; margin-bottom: 30px;">
+    <div><strong>Banned IPs:</strong> {{ banned_list|length }}</div>
+    <div><strong>Suspicious IPs:</strong> {{ suspicious_list|length }}</div>
+    <div><strong>Policy:</strong> Max {{ max_attempts }} attempts / {{ ban_duration }}s ban</div>
+</div>
+
+<h2>Banned IPs</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>IP</th>
+            <th>Banned At</th>
+            <th>Attempts</th>
+            <th>Last User</th>
+            <th>Remaining (s)</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in banned_list %}
+        <tr>
+            <td>{{ entry.ip }}</td>
+            <td>{{ entry.banned_at }}</td>
+            <td>{{ entry.attempts }}</td>
+            <td>{{ entry.last_username }}</td>
+            <td>{{ entry.remaining_sec }}</td>
+            <td>
+                <form method="post" action="{% url 'admin_unban_ip' %}" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="ip" value="{{ entry.ip }}">
+                    <button type="submit" class="button">Unban</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No banned IPs</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Suspicious IPs (under watch)</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>IP</th>
+            <th>Failed Attempts</th>
+            <th>Threshold</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in suspicious_list %}
+        <tr>
+            <td>{{ entry.ip }}</td>
+            <td>{{ entry.failed_attempts }}</td>
+            <td>{{ entry.threshold }}</td>
+            <td><span class="badge {% if entry.status == 'CRITICAL' %}badge-danger{% else %}badge-warning{% endif %}">{{ entry.status }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No suspicious IPs</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
