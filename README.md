@@ -283,13 +283,3 @@ in your preferred web browser.
 * SQLite
 
 ---
-
-# Future Enhancements
-
-* ARP Spoofing Detection
-* Intrusion Detection System (IDS)
-* USB Device Monitoring
-* Advanced Threat Detection
-* Security Analytics Dashboard
-* Traffic Visualization
-* Automated Security Response
